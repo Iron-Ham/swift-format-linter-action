@@ -1,13 +1,10 @@
 name: 'swift-format-lint'
 description: 'Lints files passed into this action using swift-format'
 inputs:
-  file-paths: # List of file paths to lint
-    description: "List of file paths to lint"
-    required: true
-  excludes: # List of file paths to exclude
+  excludes: # List of file paths to exclude, json string
     description: "List of file paths to eclude"
     required: false
-  exclude-types: # List of types to exclude
+  exclude-types: # List of types to exclude, json string
     description: "LIst of types to exclude"
     required: false
   github-token:
