@@ -1,31 +1,18 @@
-import { getInput, setFailed } from '@actions/core';
-import { context, GitHub } from '@actions/github';
-
-async function sh(cmd) {
-  return new Promise(function (resolve, reject) {
-    exec(cmd, (err, stdout, stderr) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ stdout, stderr });
-      }
-    });
-  });
-}
+const core = require('@actions/core');
+const github = require('@actions/github');
 
 const getPullRequestNumber = () => {
-  const pullRequest = context.payload.pull_request;
-  if (!pullRequest) {
-    return undefined;
-  }
-
-  return pullRequest.number;
+  const fs = require('fs')
+  const ev = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf-8'))
+  return ev.number;
 };
 
 const getPullRequestChangedFiles = async (octokit) => {
+  const nwo = process.env['GITHUB_REPOSITORY'] || '/';
+  const [owner, repo] = nwo.split('/');
   const { data } = await octokit.pulls.listFiles({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
+    owner: owner,
+    repo: repo,
     pull_number: getPullRequestNumber(),
   });
 
@@ -35,38 +22,54 @@ const getPullRequestChangedFiles = async (octokit) => {
 
   if (fileTypesToExclude != null && fileTypesToExclude.length != 0) {
     fileTypesToExclude.forEach(type =>
-      filesChanged = filesChanged.filter(file => file.endsWith(type))
+      filesChanged = filesChanged.filter(file => !file.endsWith(type))
     );
   }
 
   if (filePathsToExclude != null && filePathsToExclude.length != 0) {
     filePathsToExclude.forEach(path =>
-      filesChanged = filesChanged.filter(file => file.startsWith(path))
+      filesChanged = filesChanged.filter(file => !file.startsWith(path))
     );
   }
 
-  return filesChanged
+  return filesChanged.filter(file => file.endsWith('.swift'))
 };
 
-async function sh(cmd) {
-  return new Promise(function (resolve, reject) {
-    exec(cmd, (err, stdout, stderr) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ stdout, stderr });
-      }
-    });
-  });
+const { exec }  = require('child_process');
+async function runSwiftFormat (octokit) {
+  const filesChanged = await getPullRequestChangedFiles(octokit);
+  let output = null
+  filesChanged.forEach(file =>  {
+    exec(`swift-format lint ${file}`, (error, stdout, stderr) => {
+      console.log(`error: ${error}`);
+      console.log(`-----`);
+      console.log(`stdout: ${stdout}`);
+      console.log(`-----`)
+      console.log(`stderr: ${stderr}`);
+      const fileOutput = stdout.split('\n');
+      fileOutput.forEach(issue => {
+        let splitIssue = issue.split(':')
+        console.log(`::${splitIssue[3].trim()} file=${splitIssue[0].trim()}, line=${splitIssue[1]}, col=${splitIssue[2]}::${splitIssue[4].trim()}${splitIssue[5].trim()}`)
+        output = ''
+      })
+    })
+  })
+
+  if (output !== null) {
+    core.setFailed('swift-format found linter errors');
+  }
 }
 
-const token = core.getInput('github-token');
-const octokit = new GitHub(token);
 
-const filesChanged = await getPullRequestChangedFiles(octokit);
-let output = ''
-filesChanged.forEach(file => output.concat(await sh(`swift-format lint ${file}`)));
-
-if (!output.isEmpty()) {
-  core.setFailed('swift-format found linter errors');
+function main() {
+  const token = core.getInput('github-token') || process.env.GITHUB_TOKEN;
+  const octokit = new github.GitHub(token);
+  runSwiftFormat(octokit).then(() => {
+    console.log('done');
+  }).catch( error => {
+    core.setError(error);
+    core.setFailed('swift-format found linter errors');
+  })
 }
+
+main()
