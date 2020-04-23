@@ -6,8 +6,7 @@ This action allows you to run Apple's [`swift-format`](https://github.com/apple/
 
 ## Run requirements
 
-While this action can run on OSX, it's highly recommended to run it on Linux. 
-This action _requires_ you to install the correct version of `swift-format`. At present, you can only do that from source. If using an OSX runner, the version on Homebrew is likely not going to work because of the Swift toolchain version. 
+This action requires you to install the correct version of `swift-format`. At present, you can only do that from source. If using an OSX runner, the version on Homebrew is likely not going to work because of the Swift toolchain version. 
 
 This action requires you to pass your `GITHUB_TOKEN` secret in order to function. This is in order to fetch the pull request with the relevant diff. 
 
