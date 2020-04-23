@@ -42,3 +42,7 @@ jobs:
           # exclude-types: '[".graphql.swift"]'
 
 ```
+
+## What does this do?
+
+This action allows you to run Apple's [`swift-format`](https://github.com/apple/swift-format) as a lint command to verify that code being checked in follows the guidelines you or your team have set. 
