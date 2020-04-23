@@ -1,14 +1,15 @@
 name: 'swift-format-lint'
 description: 'Lints files passed into this action using swift-format'
 inputs:
+  github-token:
+    description: "API Token"
+    required: true
   excludes: # List of file paths to exclude, json string
     description: "List of file paths to eclude"
     required: false
   exclude-types: # List of types to exclude, json string
-    description: "LIst of types to exclude"
+    description: "List of types to exclude"
     required: false
-  github-token:
-    description: 'GITHUB_TOKEN'
 runs:
   using: 'node12'
   main: 'index.js'
