@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const getPullRequestNumber = async (octokit) => {
+const getPullRequestNumber = async (octokit, owner, repo) => {
   return (await octokit.repos.listPullRequestsAssociatedWithCommit({
     owner,
     repo,
@@ -15,7 +15,7 @@ const getPullRequestChangedFiles = async (octokit) => {
   const { data } = await octokit.pulls.listFiles({
     owner: owner,
     repo: repo,
-    pull_number: await getPullRequestNumber(octokit),
+    pull_number: await getPullRequestNumber(octokit, owner, repo),
   });
 
   let filesChanged = data.map((v) => v.filename);
