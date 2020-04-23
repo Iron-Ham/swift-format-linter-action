@@ -41,8 +41,7 @@ async function runSwiftFormat (octokit) {
   let output = null
   filesChanged.forEach(file =>  {
     exec(`swift-format lint ${file}`, (error) => {
-      console.dir(error);
-      const fileOutput = error.split('\n');
+      const fileOutput = error.message.split('\n');
       if (fileOutput.length != 6) return;
       fileOutput.forEach(issue => {
         let splitIssue = issue.split(':')
