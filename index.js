@@ -20,8 +20,8 @@ const getPullRequestChangedFiles = async (octokit) => {
   const fileTypeJsonString = core.getInput('exclude-types');
   const pathJsonString = core.getInput('excludes');
 
-  const fileTypesToExclude = fileTypeJsonString || fileTypeJsonString.trim() == '' ? null : JSON.parse(core.getInput('exclude-types'));
-  const filePathsToExclude = pathJsonString || pathJsonString.trim() == '' ? null : JSON.parse(core.getInput('excludes'));
+  const fileTypesToExclude = !fileTypeJsonString || fileTypeJsonString.trim() == '' ? null : JSON.parse(core.getInput('exclude-types'));
+  const filePathsToExclude = !pathJsonString || pathJsonString.trim() == '' ? null : JSON.parse(core.getInput('excludes'));
 
   if (fileTypesToExclude != null && fileTypesToExclude.length != 0) {
     fileTypesToExclude.forEach(type =>
@@ -34,8 +34,6 @@ const getPullRequestChangedFiles = async (octokit) => {
       filesChanged = filesChanged.filter(file => !file.startsWith(path))
     );
   }
-
-  console.log(filesChanged.filter(file => file.endsWith('.swift')));
   return filesChanged.filter(file => file.endsWith('.swift'));
 };
 
