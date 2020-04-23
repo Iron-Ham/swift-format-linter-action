@@ -17,4 +17,4 @@ jobs:
         id: swift-format-lint
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          excludes: '["whatev/"]'
+          excludes: '["whatev"]'
