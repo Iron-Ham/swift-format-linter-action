@@ -2,8 +2,8 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 const getPullRequestNumber = () => {
-  const fs = require('fs')
-  const ev = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf-8'))
+  const fs = require('fs');
+  const ev = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf-8'));
   return ev.number;
 }
 
@@ -20,8 +20,8 @@ const getPullRequestChangedFiles = async (octokit) => {
   const fileTypeJsonString = core.getInput('exclude-types');
   const pathJsonString = core.getInput('excludes');
 
-  const fileTypesToExclude = !fileTypeJsonString || fileTypeJsonString.trim() == '' ? null : JSON.parse(core.getInput('exclude-types'));
-  const filePathsToExclude = !pathJsonString || pathJsonString.trim() == '' ? null : JSON.parse(core.getInput('excludes'));
+  const fileTypesToExclude = !fileTypeJsonString || fileTypeJsonString.trim() == '' ? null : JSON.parse(fileTypeJsonString);
+  const filePathsToExclude = !pathJsonString || pathJsonString.trim() == '' ? null : JSON.parse(pathJsonString);
 
   if (fileTypesToExclude != null && fileTypesToExclude.length != 0) {
     fileTypesToExclude.forEach(type =>
@@ -38,6 +38,7 @@ const getPullRequestChangedFiles = async (octokit) => {
 };
 
 async function format(file) {
+  const { exec } = require('child_process');
   return new Promise(function (resolve, reject) {
     exec(`swift-format lint ${file}`, (err, stdout, stderr) => {
       if (err) {
@@ -60,9 +61,7 @@ async function format(file) {
 async function runSwiftFormat(octokit) {
   const filesChanged = await getPullRequestChangedFiles(octokit);
   if (filesChanged.length == 0) return [Promise.resolve()];
-  return filesChanged.map(file => {
-    return format(file)
-  })
+  return filesChanged.map(file => format(file));
 }
 
 async function main() {
@@ -71,7 +70,7 @@ async function main() {
   Promise.all(await runSwiftFormat(octokit)).then(() => {
     console.log('done');
   }).catch((error) => {
-    console.log(error)
+    console.log(error);
     core.setFailed('swift-format failed check');
   })
 }
