@@ -42,7 +42,7 @@ async function format(file) {
   return new Promise(function (resolve, reject) {
     exec(`swift-format lint ${file}`, (err, stdout, stderr) => {
       if (err) {
-        error.message
+        err.message
           .split('\n')
           .slice(1)
           .forEach(issue => {
@@ -69,8 +69,8 @@ async function main() {
   const octokit = new github.GitHub(token);
   Promise.all(await runSwiftFormat(octokit)).then(() => {
     console.log('done');
-  }).catch((error) => {
-    console.log(error);
+  }).catch((err) => {
+    console.log(err);
     core.setFailed('swift-format failed check');
   })
 }
