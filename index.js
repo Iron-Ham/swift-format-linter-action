@@ -1,27 +1,27 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const getPullRequestNumber = async (octokit, owner, repo, commit_sha) => {
-  return (await octokit.repos.listPullRequestsAssociatedWithCommit({
-    owner,
-    repo,
-    commit_sha,
-  })).data[0].number
-};
+const getPullRequestNumber = () => {
+  const fs = require('fs')
+  const ev = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf-8'))
+  return ev.number;
+}
 
 const getPullRequestChangedFiles = async (octokit) => {
   const nwo = process.env['GITHUB_REPOSITORY'] || '/';
-  const commit_sha = process.env['GITHUB_SHA'] || '';
   const [owner, repo] = nwo.split('/');
   const { data } = await octokit.pulls.listFiles({
     owner: owner,
     repo: repo,
-    pull_number: await getPullRequestNumber(octokit, owner, repo, commit_sha),
+    pull_number: getPullRequestNumber(),
   });
 
   let filesChanged = data.map((v) => v.filename);
-  const fileTypesToExclude = JSON.parse(core.getInput('exclude-types'));
-  const filePathsToExclude = JSON.parse(core.getInput('excludes'));
+  const fileTypeJsonString = core.getInput('exclude-types');
+  const pathJsonString = core.getInput('excludes');
+
+  const fileTypesToExclude = !fileTypeJsonString || fileTypeJsonString.trim() == '' ? null : JSON.parse(core.getInput('exclude-types'));
+  const filePathsToExclude = !pathJsonString || pathJsonString.trim() == '' ? null : JSON.parse(core.getInput('excludes'));
 
   if (fileTypesToExclude != null && fileTypesToExclude.length != 0) {
     fileTypesToExclude.forEach(type =>
@@ -34,13 +34,13 @@ const getPullRequestChangedFiles = async (octokit) => {
       filesChanged = filesChanged.filter(file => !file.startsWith(path))
     );
   }
-
-  return filesChanged.filter(file => file.endsWith('.swift'))
+  return filesChanged.filter(file => file.endsWith('.swift'));
 };
 
 const { exec } = require('child_process');
 async function runSwiftFormat(octokit) {
   const filesChanged = await getPullRequestChangedFiles(octokit);
+  if (filesChanged.length == 0) return [Promise.resolve()];
   return filesChanged.map(file => {
     return new Promise((resolve, reject) => {
       exec(`swift-format lint ${file}`, (error) => {
@@ -68,7 +68,8 @@ async function main() {
   const octokit = new github.GitHub(token);
   Promise.all(await runSwiftFormat(octokit)).then(() => {
     console.log('done');
-  }).catch(() => {
+  }).catch((error) => {
+    console.log(error)
     core.setFailed('swift-format failed check');
   })
 }
