@@ -45,6 +45,7 @@ async function runSwiftFormat (octokit) {
         .slice(1)
         .forEach(issue => {
           let splitIssue = issue.split(':')
+          if (splitIssue.length != 6) return;
           core.setFailed(`::${splitIssue[3].trim()} file=${splitIssue[0].trim()},line=${splitIssue[1]},col=${splitIssue[2]}::${splitIssue[4].trim()}${splitIssue[5].trim()}`)
         })
     })
@@ -59,7 +60,6 @@ function main() {
     console.log('done');
   }).catch( error => {
     core.setError(error);
-    core.setFailed('swift-format found linter errors');
   })
 }
 
