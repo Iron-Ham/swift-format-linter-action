@@ -38,23 +38,17 @@ const getPullRequestChangedFiles = async (octokit) => {
 const { exec }  = require('child_process');
 async function runSwiftFormat (octokit) {
   const filesChanged = await getPullRequestChangedFiles(octokit);
-  let output = null
   filesChanged.forEach(file =>  {
     exec(`swift-format lint ${file}`, (error) => {
       const fileOutput = error.message.split('\n');
-      console.log(fileOutput);
-      if (fileOutput.length != 6) return;
-      fileOutput.forEach(issue => {
+
+      fileOutput.slice(1).forEach(issue => {
         let splitIssue = issue.split(':')
         console.log(`::${splitIssue[3].trim()} file=${splitIssue[0].trim()}, line=${splitIssue[1]}, col=${splitIssue[2]}::${splitIssue[4].trim()}${splitIssue[5].trim()}`)
-        output = ''
+        core.setFailed(issue);
       })
     })
   })
-
-  if (output !== null) {
-    core.setFailed('swift-format found linter errors');
-  }
 }
 
 
