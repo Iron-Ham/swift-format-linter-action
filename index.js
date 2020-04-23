@@ -37,9 +37,9 @@ const getPullRequestChangedFiles = async (octokit) => {
   return filesChanged.filter(file => file.endsWith('.swift'));
 };
 
-async function sh(cmd) {
+async function format(file) {
   return new Promise(function (resolve, reject) {
-    exec(cmd, (err, stdout, stderr) => {
+    exec(`swift-format lint ${file}`, (err, stdout, stderr) => {
       if (err) {
         error.message
           .split('\n')
@@ -61,7 +61,7 @@ async function runSwiftFormat(octokit) {
   const filesChanged = await getPullRequestChangedFiles(octokit);
   if (filesChanged.length == 0) return [Promise.resolve()];
   return filesChanged.map(file => {
-    return sh(`swift-format lint ${file}`);
+    return format(file)
   })
 }
 
