@@ -8,6 +8,7 @@ jobs:
       # To use this repository's private action, you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Restore swift build cache
         uses: actions/cache@v1
         with:
@@ -15,6 +16,7 @@ jobs:
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
+
       - name: swift build
         run: |
           if [ -d ".build" ]; then
@@ -23,9 +25,10 @@ jobs:
             git clone -b swift-5.2-branch https://github.com/apple/swift-format.git
             cd swift-format
             swift build --disable-sandbox -c release
+            mv .build .. && cd ..
             sudo cp -f .build/release/swift-format /usr/local/bin/swift-format
-            cd ..
           fi
+
       - name: Lint
         uses: Iron-Ham/swift-format-linter-action@v3
         with:
