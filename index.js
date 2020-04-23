@@ -35,7 +35,8 @@ const getPullRequestChangedFiles = async (octokit) => {
     );
   }
 
-  return filesChanged.filter(file => file.endsWith('.swift'))
+  console.log(filesChanged.filter(file => file.endsWith('.swift')));
+  return filesChanged.filter(file => file.endsWith('.swift'));
 };
 
 const { exec } = require('child_process');
