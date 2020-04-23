@@ -68,7 +68,8 @@ async function main() {
   const octokit = new github.GitHub(token);
   Promise.all(await runSwiftFormat(octokit)).then(() => {
     console.log('done');
-  }).catch(() => {
+  }).catch((error) => {
+    console.log(error)
     core.setFailed('swift-format failed check');
   })
 }
