@@ -7,19 +7,38 @@ on: [pull_request]
 
 jobs:
   swift-format-lint:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     name: Swift-Format
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode_11.4.app
+
+      - name: Restore swift build cache
+        uses: actions/cache@v1
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
       - name: swift build
-        run: brew install mint && mint install apple/swift-format@swift-5.2-branch
+        run: |
+          if [ -d ".build" ]; then
+            echo 'using cache'
+          else
+            git clone -b swift-5.2-branch https://github.com/apple/swift-format.git
+            cd swift-format
+            swift build --disable-sandbox -c release
+            mv .build .. && cd ..
+            sudo cp -f .build/release/swift-format /usr/local/bin/swift-format
+          fi
+
       - name: Lint
-        uses: ./ # Uses an action in the root directory
-        id: swift-format-lint
+        uses: Iron-Ham/swift-format-linter-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          excludes: '["whatev"]'
+          # Optional parameters. Note that these are formatted as JSON array strings
+          # excludes: '["Generated/", "Pods/"]'
+          # exclude-types: '[".graphql.swift"]'
+
 ```
