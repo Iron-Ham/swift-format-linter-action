@@ -1,0 +1,21 @@
+on: [pull_request]
+
+jobs:
+  swift-format-lint:
+    runs-on: ubuntu-latest
+    name: Swift-Format
+    steps:
+      # To use this repository's private action, you must check out the repository
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: swift build
+        run: |
+          git clone -b swift-5.2-branch https://github.com/apple/swift-format.git
+          swift build --disable-sandbox -c release
+          cp -f .build/release/swift-format /usr/local/bin/swift-format
+      - name: Lint
+        uses: ./ # Uses an action in the root directory
+        id: swift-format-lint
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          excludes: '["whatev"]'
