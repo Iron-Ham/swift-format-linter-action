@@ -17,10 +17,14 @@ jobs:
             ${{ runner.os }}-spm-
       - name: swift build
         run: |
-          git clone -b swift-5.2-branch https://github.com/apple/swift-format.git
-          cd swift-format
-          swift build --disable-sandbox -c release
-          sudo cp -f .build/release/swift-format /usr/local/bin/swift-format
+          if [ -d ".build" ]; then
+            echo 'using cache'
+          else
+            git clone -b swift-5.2-branch https://github.com/apple/swift-format.git
+            cd swift-format
+            swift build --disable-sandbox -c release
+            sudo cp -f .build/release/swift-format /usr/local/bin/swift-format
+          fi
       - name: Lint
         uses: ./ # Uses an action in the root directory
         id: swift-format-lint
