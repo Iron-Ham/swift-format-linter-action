@@ -20,8 +20,11 @@ const getPullRequestChangedFiles = async (octokit) => {
   });
 
   let filesChanged = data.map((v) => v.filename);
-  const fileTypesToExclude = JSON.parse(core.getInput('exclude-types'));
-  const filePathsToExclude = JSON.parse(core.getInput('excludes'));
+  const fileTypeJsonString = core.getInput('exclude-types');
+  const pathJsonString = core.getInput('excludes');
+
+  const fileTypesToExclude = fileTypeJsonString == undefined || fileTypeJsonString.isEmpty() ? null : JSON.parse(core.getInput('exclude-types'));
+  const filePathsToExclude = pathJsonString == undefined || pathJsonString.isEmpty() ? null : JSON.parse(core.getInput('excludes'));
 
   if (fileTypesToExclude != null && fileTypesToExclude.length != 0) {
     fileTypesToExclude.forEach(type =>
