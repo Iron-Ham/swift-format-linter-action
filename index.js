@@ -1,10 +1,12 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const getPullRequestNumber = () => {
-  const fs = require('fs')
-  const ev = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf-8'))
-  return ev.number;
+const getPullRequestNumber = async () => {
+  return (await octokit.repos.listPullRequestsAssociatedWithCommit({
+    owner,
+    repo,
+    commit_sha,
+  })).data[0].number
 };
 
 const getPullRequestChangedFiles = async (octokit) => {
@@ -13,7 +15,7 @@ const getPullRequestChangedFiles = async (octokit) => {
   const { data } = await octokit.pulls.listFiles({
     owner: owner,
     repo: repo,
-    pull_number: getPullRequestNumber(),
+    pull_number: await getPullRequestNumber(),
   });
 
   let filesChanged = data.map((v) => v.filename);
@@ -43,13 +45,13 @@ async function runSwiftFormat(octokit) {
       exec(`swift-format lint ${file}`, (error) => {
         if (error) {
           error.message
-          .split('\n')
-          .slice(1)
-          .forEach(issue => {
-            let splitIssue = issue.split(':')
-            if (splitIssue.length != 6) return;
-            console.log(`::${splitIssue[3].trim()} file=${splitIssue[0].trim()},line=${splitIssue[1]},col=${splitIssue[2]}::${splitIssue[4].trim()}${splitIssue[5].trim()}`)
-          })
+            .split('\n')
+            .slice(1)
+            .forEach(issue => {
+              let splitIssue = issue.split(':')
+              if (splitIssue.length != 6) return;
+              console.log(`::${splitIssue[3].trim()} file=${splitIssue[0].trim()},line=${splitIssue[1]},col=${splitIssue[2]}::${splitIssue[4].trim()}${splitIssue[5].trim()}`)
+            })
           reject()
         } else {
           resolve()
