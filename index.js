@@ -45,8 +45,7 @@ async function runSwiftFormat (octokit) {
         .slice(1)
         .forEach(issue => {
           let splitIssue = issue.split(':')
-          console.log(`::${splitIssue[3].trim()} file=${splitIssue[0].trim()},line=${splitIssue[1]},col=${splitIssue[2]}::${splitIssue[4].trim()}${splitIssue[5].trim()}`)
-          core.setFailed(issue);
+          core.setFailed(`::${splitIssue[3].trim()} file=${splitIssue[0].trim()},line=${splitIssue[1]},col=${splitIssue[2]}::${splitIssue[4].trim()}${splitIssue[5].trim()}`)
         })
     })
   })
