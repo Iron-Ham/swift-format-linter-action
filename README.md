@@ -10,7 +10,6 @@ jobs:
     runs-on: macos-latest
     name: Swift-Format
     steps:
-      # To use this repository's private action, you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
       - name: Select Xcode
