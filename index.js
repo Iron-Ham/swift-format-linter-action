@@ -37,31 +37,33 @@ const getPullRequestChangedFiles = async (octokit) => {
   return filesChanged.filter(file => file.endsWith('.swift'));
 };
 
-const { exec } = require('child_process');
+async function sh(cmd) {
+  return new Promise(function (resolve, reject) {
+    exec(cmd, (err, stdout, stderr) => {
+      if (err) {
+        error.message
+          .split('\n')
+          .slice(1)
+          .forEach(issue => {
+            let splitIssue = issue.split(':')
+            if (splitIssue.length != 6) return;
+            console.log(`::${splitIssue[3].trim()} file=${splitIssue[0].trim()},line=${splitIssue[1]},col=${splitIssue[2]}::${splitIssue[4].trim()}${splitIssue[5].trim()}`)
+          })
+        reject(err);
+      } else {
+        resolve({ stdout, stderr });
+      }
+    });
+  });
+}
+
 async function runSwiftFormat(octokit) {
   const filesChanged = await getPullRequestChangedFiles(octokit);
   if (filesChanged.length == 0) return [Promise.resolve()];
   return filesChanged.map(file => {
-    return new Promise((resolve, reject) => {
-      exec(`swift-format lint ${file}`, (error) => {
-        if (error) {
-          error.message
-            .split('\n')
-            .slice(1)
-            .forEach(issue => {
-              let splitIssue = issue.split(':')
-              if (splitIssue.length != 6) return;
-              console.log(`::${splitIssue[3].trim()} file=${splitIssue[0].trim()},line=${splitIssue[1]},col=${splitIssue[2]}::${splitIssue[4].trim()}${splitIssue[5].trim()}`)
-            })
-          reject()
-        } else {
-          resolve()
-        }
-      })
-    })
+    return sh(`swift-format lint ${file}`);
   })
 }
-
 
 async function main() {
   const token = core.getInput('github-token') || process.env.GITHUB_TOKEN;
