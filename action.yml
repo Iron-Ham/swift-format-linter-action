@@ -1,7 +1,5 @@
 name: 'swift-format-lint'
 description: 'Lints files passed into this action using swift-format'
-icon: 'pocket'
-color: 'red'
 inputs:
   github-token:
     description: "API Token"
