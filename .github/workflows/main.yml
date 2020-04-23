@@ -12,9 +12,9 @@ jobs:
         uses: actions/cache@v1
         with:
           path: .build
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ runner.os }}-spm1-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm-
+            ${{ runner.os }}-spm1-
       - name: swift build
         run: |
           if [ -d ".build" ]; then
