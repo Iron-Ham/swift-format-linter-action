@@ -24,10 +24,9 @@ jobs:
             cd swift-format
             swift build --disable-sandbox -c release
             sudo cp -f .build/release/swift-format /usr/local/bin/swift-format
+            cd ..
           fi
       - name: Lint
-        uses: ./ # Uses an action in the root directory
-        id: swift-format-lint
+        uses: Iron-Ham/swift-format-linter-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          excludes: '["whatev"]'
