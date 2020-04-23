@@ -1,22 +1,19 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const getPullRequestNumber = async (octokit, owner, repo, commit_sha) => {
-  return (await octokit.repos.listPullRequestsAssociatedWithCommit({
-    owner,
-    repo,
-    commit_sha,
-  })).data[0].number
-};
+const getPullRequestNumber = () => {
+  const fs = require('fs')
+  const ev = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf-8'))
+  return ev.number;
+}
 
 const getPullRequestChangedFiles = async (octokit) => {
   const nwo = process.env['GITHUB_REPOSITORY'] || '/';
-  const commit_sha = process.env['GITHUB_SHA'] || '';
   const [owner, repo] = nwo.split('/');
   const { data } = await octokit.pulls.listFiles({
     owner: owner,
     repo: repo,
-    pull_number: await getPullRequestNumber(octokit, owner, repo, commit_sha),
+    pull_number: getPullRequestNumber(),
   });
 
   let filesChanged = data.map((v) => v.filename);
@@ -38,9 +35,7 @@ const getPullRequestChangedFiles = async (octokit) => {
     );
   }
 
-  const k =  filesChanged.filter(file => file.endsWith('.swift'));
-  console.log(k);
-  return k;
+  return filesChanged.filter(file => file.endsWith('.swift'))
 };
 
 const { exec } = require('child_process');
