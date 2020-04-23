@@ -40,7 +40,7 @@ const getPullRequestChangedFiles = async (octokit) => {
 const { exec } = require('child_process');
 async function runSwiftFormat(octokit) {
   const filesChanged = await getPullRequestChangedFiles(octokit);
-  if (filesChanged.length == 0) return Promise.resolve();
+  if (filesChanged.length == 0) return [Promise.resolve()];
   return filesChanged.map(file => {
     return new Promise((resolve, reject) => {
       exec(`swift-format lint ${file}`, (error) => {
