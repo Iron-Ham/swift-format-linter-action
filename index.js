@@ -26,6 +26,7 @@ const getPullRequestChangedFiles = async (octokit) => {
   const fileTypesToExclude = fileTypeJsonString || fileTypeJsonString.trim() == '' ? null : JSON.parse(core.getInput('exclude-types'));
   const filePathsToExclude = pathJsonString || pathJsonString.trim() == '' ? null : JSON.parse(core.getInput('excludes'));
 
+  console.log(filesChanged);
   if (fileTypesToExclude != null && fileTypesToExclude.length != 0) {
     fileTypesToExclude.forEach(type =>
       filesChanged = filesChanged.filter(file => !file.endsWith(type))
