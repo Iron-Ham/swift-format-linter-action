@@ -60,6 +60,7 @@ jobs:
         uses: Iron-Ham/swift-format-linter-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          excludes: '["Modules/GitHub/Sources/Generated"]'
-          exclude-types: '[".graphql.swift"]'
+          # Optional parameters. Note that these are formatted as JSON array strings
+          # excludes: '["Generated/", "Pods/"]'
+          # exclude-types: '[".graphql.swift"]'
 ```
