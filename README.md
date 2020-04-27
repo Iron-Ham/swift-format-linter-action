@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Swift-Format
     steps:
+      # To use this repository's private action, you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -38,14 +39,16 @@ jobs:
         uses: actions/cache@v1
         with:
           path: .build
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ runner.os }}-spm1-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm-
+            ${{ runner.os }}-spm1-
 
       - name: swift build
         run: |
           if [ -d ".build" ]; then
-            echo 'using cache'
+            if ! [ -x "$(command -v swift-format)" ]; then
+              sudo cp -f .build/release/swift-format /usr/local/bin/swift-format
+            fi
           else
             git clone -b swift-5.2-branch https://github.com/apple/swift-format.git
             cd swift-format
@@ -58,8 +61,6 @@ jobs:
         uses: Iron-Ham/swift-format-linter-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          # Optional parameters. Note that these are formatted as JSON array strings
-          # excludes: '["Generated/", "Pods/"]'
-          # exclude-types: '[".graphql.swift"]'
-
+          excludes: '["Modules/GitHub/Sources/Generated"]'
+          exclude-types: '[".graphql.swift"]'
 ```
