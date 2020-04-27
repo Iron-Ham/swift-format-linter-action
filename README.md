@@ -31,7 +31,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Swift-Format
     steps:
-      # To use this repository's private action, you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -39,9 +38,9 @@ jobs:
         uses: actions/cache@v1
         with:
           path: .build
-          key: ${{ runner.os }}-spm1-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm1-
+            ${{ runner.os }}-spm-
 
       - name: swift build
         run: |
