@@ -45,7 +45,9 @@ jobs:
       - name: swift build
         run: |
           if [ -d ".build" ]; then
-            echo 'using cache'
+            if ! [ -x "$(command -v swift-format)" ]; then
+              sudo cp -f .build/release/swift-format /usr/local/bin/swift-format
+            fi
           else
             git clone -b swift-5.2-branch https://github.com/apple/swift-format.git
             cd swift-format
@@ -61,5 +63,4 @@ jobs:
           # Optional parameters. Note that these are formatted as JSON array strings
           # excludes: '["Generated/", "Pods/"]'
           # exclude-types: '[".graphql.swift"]'
-
 ```
