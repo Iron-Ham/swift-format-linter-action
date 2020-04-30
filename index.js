@@ -34,6 +34,8 @@ const getPullRequestChangedFiles = async (octokit) => {
       filesChanged = filesChanged.filter(file => !file.startsWith(path))
     );
   }
+
+  filesChanged.map(filename => filename.replace(/\s/g, '\\ '));
   return filesChanged.filter(file => file.endsWith('.swift'));
 };
 
